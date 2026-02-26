@@ -1,7 +1,7 @@
 local M = {}
 
 local default_config = {
-  grammar_url = "https://github.com/jkorbmacher/prover9_treesitter",
+  grammar_url = "https://github.com/jkorb/prover9_treesitter",
   grammar_branch = "main",
   grammar_files = { "src/parser.c" }
 }
