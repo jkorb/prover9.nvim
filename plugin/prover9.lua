@@ -1,11 +1,21 @@
-local ok, prover9 = pcall(require, "prover9")
+local ok, runner = pcall(require, "prover9.runner")
 if not ok then
   return
 end
 
-prover9.setup()
+local function register_parser()
+  pcall(function()
+    require("prover9").setup()
+  end)
+end
 
-local runner = require("prover9.runner")
+register_parser()
+
+vim.api.nvim_create_autocmd("User", {
+  pattern = "TSUpdate",
+  callback = register_parser,
+  desc = "Ensure prover9 parser config is registered for nvim-treesitter"
+})
 
 vim.api.nvim_create_user_command("Prover9Run", runner.run_prover9, {
   desc = "Run prover9 -f against current file or buffer"

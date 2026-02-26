@@ -1,12 +1,18 @@
 (line_comment) @comment
 (block_comment) @comment
 
-(command name: (symbol (identifier) @function))
-(list_block (symbol (identifier) @type))
-(if_block (symbol (identifier) @constant.builtin))
-(quantified (symbol (identifier) @keyword))
+(symbol (identifier) @constant
+  (#match? @constant "^[A-Z]"))
 
-(identifier) @variable
+(symbol (identifier) @variable
+  (#match? @variable "^[a-z$]"))
+
+(command name: (symbol (identifier) @function.builtin))
+(application (symbol (identifier) @function.call))
+(list_block (symbol (identifier) @label))
+(if_block (symbol (identifier) @constant.builtin))
+(quantified (symbol (identifier) @variable.parameter))
+
 (quoted_symbol) @string
 (number) @number
 

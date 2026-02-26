@@ -19,35 +19,55 @@ local function local_grammar_repo()
   return nil
 end
 
+local function resolve_parser_configs(parsers)
+  if type(parsers) ~= "table" then
+    return nil
+  end
+  if type(parsers.get_parser_configs) == "function" then
+    return parsers.get_parser_configs()
+  end
+  return parsers
+end
+
 local function register_parser(config)
   local ok, parsers = pcall(require, "nvim-treesitter.parsers")
   if not ok then
-    return
+    return false
   end
 
-  local parser_config = parsers.get_parser_configs()
-  parser_config.prover9 = parser_config.prover9 or {}
+  local parser_configs = resolve_parser_configs(parsers)
+  if type(parser_configs) ~= "table" then
+    return false
+  end
+
+  parser_configs.prover9 = parser_configs.prover9 or {}
 
   local local_repo = local_grammar_repo()
-  local url = local_repo or config.grammar_url
-
-  parser_config.prover9.install_info = {
-    url = url,
+  local install_info = {
     files = config.grammar_files,
     branch = config.grammar_branch,
     generate_requires_npm = false,
     requires_generate_from_grammar = false
   }
-  parser_config.prover9.filetype = "prover9"
+
+  if local_repo then
+    install_info.path = local_repo
+  else
+    install_info.url = config.grammar_url
+  end
+
+  parser_configs.prover9.install_info = install_info
+  parser_configs.prover9.filetype = "prover9"
 
   pcall(vim.treesitter.language.register, "prover9", "mace4")
+  return true
 end
 
 M.config = vim.deepcopy(default_config)
 
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", vim.deepcopy(default_config), opts or {})
-  register_parser(M.config)
+  return register_parser(M.config)
 end
 
 return M
